@@ -8,11 +8,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherAwareInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=VendorRepository::class)
  */
-class Vendor implements PasswordAuthenticatedUserInterface, PasswordHasherAwareInterface
+class Vendor implements PasswordAuthenticatedUserInterface, PasswordHasherAwareInterface, UserInterface
 {
     /**
      * @ORM\Id
@@ -236,5 +237,38 @@ class Vendor implements PasswordAuthenticatedUserInterface, PasswordHasherAwareI
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->name . " " . $this->department;
+    }
+
+    public function getMaximumRateByAmount($amount)
+    {
+        /** @var Discount $discount */
+        foreach ($this->getDiscounts() as $discount)
+        {
+            if ($amount < $discount->getMinimalamount()) {
+                return isset($maximumRate) ? $maximumRate : $discount->getMaximumrate();
+            }
+
+            $maximumRate = $discount->getMaximumrate();
+        }
+    }
+
+    public function getRoles()
+    {
+        return ['ROLE_VENDOR'];
+    }
+
+    public function getUsername()
+    {
+        return $this->getFirstname() . " " . $this->getName();
+    }
+
+    public function eraseCredentials()
+    {
+        return null;
     }
 }

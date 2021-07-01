@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Proposition
 {
+    const TAXE_RATE = 20;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -51,6 +53,11 @@ class Proposition
      * @ORM\Column(type="string", length=255)
      */
     private $RefCustomer;
+
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $createdAt;
 
     public function getId(): ?int
     {
@@ -139,5 +146,47 @@ class Proposition
         $this->RefCustomer = $RefCustomer;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getAmountWithoutTaxes()
+    {
+        return $this->amount - ($this->amount * self::TAXE_RATE / 100) - $this->getShippingFees();
+    }
+
+    public function getTotalVendorCost()
+    {
+        return $this->getVendorCost() + $this->getShippingFeesDiscount();
+    }
+
+    public function getVendorCostRate()
+    {
+        return $this->getTotalVendorCost() / $this->getAmountWithoutTaxes();
+    }
+
+    public function getBonificationRate()
+    {
+        return ($this->getVendor()->getMaximumRateByAmount($this->getAmountWithoutTaxes()) - $this->getDiscountRate() - $this->getVendorCostRate()) / 3;
+    }
+
+    public function getCommissionRate()
+    {
+        return $this->getVendor()->getCommission() + $this->getBonificationRate();
+    }
+
+    public function getCommssionAmount()
+    {
+        return $this->getAmountWithoutTaxes() * $this->getCommissionRate() / 100;
     }
 }

@@ -21,5 +21,17 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
 
+    App\EventSubscriber\DatabaseSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }
+
+    \Pusher\PushNotifications\PushNotifications:
+        class: \Pusher\PushNotifications\PushNotifications
+        arguments:
+            - { instanceId: '%env(PUSHER_INSTANCE_ID)%', secretKey: '%env(PUSHER_SECRET_KEY)%' }
+
+    Pusher\PushNotifications\PushNotifications:
+        alias: \Pusher\PushNotifications\PushNotifications
+    # todo declare instance pusher
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
