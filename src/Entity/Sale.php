@@ -43,6 +43,11 @@ class Sale
      */
     private $Goal;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $amount;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -104,6 +109,18 @@ class Sale
     public function setGoal(int $Goal): self
     {
         $this->Goal = $Goal;
+
+        return $this;
+    }
+
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(int $amount): self
+    {
+        $this->amount = $amount;
 
         return $this;
     }

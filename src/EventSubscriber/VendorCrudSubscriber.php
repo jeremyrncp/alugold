@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\Vendor;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -22,7 +23,9 @@ class VendorCrudSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getEntityInstance();
 
-        $entity->setPassword($this->hasher->hashPassword($entity, $entity->getPassword()));
+        if ($entity instanceof Vendor) {
+            $entity->setPassword($this->hasher->hashPassword($entity, $entity->getPassword()));
+        }
     }
 
     public static function getSubscribedEvents()
