@@ -23,7 +23,7 @@ class MonthlySalesType extends AbstractType
             ])
             ->add('submit', SubmitType::class, ['label' => 'Afficher ventes et objectifs',
                 'attr' => [
-                    'class' => 'btn btn-primary btn-block'
+                    'class' => 'btn btn-block btn-primary'
                 ]
             ])
         ;

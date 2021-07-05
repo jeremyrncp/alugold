@@ -73,6 +73,10 @@ class DashboardController extends AbstractDashboardController
             return $this->salesAndGoalByVendor();
         }
 
+        if (empty($this->saleRepository->findAll())) {
+            return $this->render('dashboard_sales.html.twig');
+        }
+
         $monthAvailable = array_map(function ($elm) {
             return $elm['date'];
         }, $this->saleRepository->findAllMonthAvailable());
@@ -118,6 +122,10 @@ class DashboardController extends AbstractDashboardController
      */
     public function salesAndGoalByVendor(): Response
     {
+        if (empty($this->saleRepository->findAll())) {
+            return $this->render('dashboard_sales.html.twig');
+        }
+
         if ($this->isGranted('ROLE_ADMIN')) {
             $vendorsAvailable = $this->getDoctrine()->getRepository(Vendor::class)->findAll();
             $vendorSales = $this->createForm(VendorSalesType::class, $vendorsAvailable);

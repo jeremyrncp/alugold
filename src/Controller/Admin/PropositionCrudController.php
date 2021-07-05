@@ -46,6 +46,8 @@ class PropositionCrudController extends AbstractCrudController
             $result->setParameter('vendor', $this->getUser());
         }
 
+        $result->orderBy('entity.createdAt','DESC');
+
         return $result;
     }
 
@@ -119,6 +121,7 @@ class PropositionCrudController extends AbstractCrudController
     {
         return [
             AssociationField::new('Vendor')
+                ->setLabel('Vendeur')
                 ->setRequired(true)
                 ->setPermission('ROLE_ADMIN'),
             TextField::new('RefCustomer')
@@ -135,19 +138,22 @@ class PropositionCrudController extends AbstractCrudController
                 ->setLabel('Remise port'),
             IntegerField::new('VendorCost')
                 ->setLabel('Coût vendeur'),
-            IntegerField::new('VendorCostRate')
-                ->setLabel('Tx coût vendeur')
+            NumberField::new('VendorCostRate')
+                ->setNumDecimals(2)
+                ->setLabel('Tx vendeur')
                 ->hideOnForm(),
             IntegerField::new('DiscountRate')
                 ->setLabel('Tx remise'),
             NumberField::new('BonificationRate')
                 ->setLabel('Bonification')
+                ->setNumDecimals(2)
                 ->hideOnForm(),
             NumberField::new('CommissionRate')
-                ->setLabel('Commission (%)')
+                ->setLabel('Com (%)')
+                ->setNumDecimals(2)
                 ->hideOnForm(),
             IntegerField::new('CommssionAmount')
-                ->setLabel('Commission (€)')
+                ->setLabel('Com (€)')
                 ->hideOnForm(),
         ];
     }

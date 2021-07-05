@@ -1,9 +1,9 @@
-{% extends '@EasyAdmin/welcome.html.twig' %}
+{% extends 'dashboard_sales.html.twig' %}
 
 {% block page_title %}Dashboard suivi ventes et objectifs{% endblock %}
 {% block page_content %}
     <div class="text-right">
-        <a class="btn btn-secondary" href="{{ path('export_sales', {month: month}) }}" target="_blank">
+        <a class="btn btn-secondary btn-block" href="{{ path('export_sales', {month: month}) }}" target="_blank">
             <i class="fa fa-file-export"></i>
             Export XLS
         </a>

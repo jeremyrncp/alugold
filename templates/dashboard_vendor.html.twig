@@ -1,4 +1,11 @@
-{% extends '@EasyAdmin/welcome.html.twig' %}
+{% extends 'dashboard_sales.html.twig' %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    {% if is_granted('ROLE_VENDOR') %}
+        <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+    {% endif %}
+{% endblock head_javascript %}
 
 {% block page_title %}Dashboard suivi ventes et objectifs par vendeur{% endblock %}
 {% block page_content %}

@@ -255,6 +255,8 @@ class Vendor implements PasswordAuthenticatedUserInterface, PasswordHasherAwareI
 
             $maximumRate = $discount->getMaximumrate();
         }
+
+        return $maximumRate;
     }
 
     public function getRoles()

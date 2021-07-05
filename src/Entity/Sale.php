@@ -147,7 +147,7 @@ class Sale
         return round($this->getAmount() * $this->getCommissionRate() / 100, 2);
     }
 
-    public function getVendor(): Vendor
+    public function getVendor(): ?Vendor
     {
        return $this->getProposition()->getVendor();
     }

@@ -12,8 +12,8 @@ class DiscountType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('minimalamount', null, ['label' => 'Montant minimal'])
-            ->add('maximumrate', null, ['label' => 'Taux remise maximum'])
+            ->add('minimalamount', null, ['label' => 'Montant minimal (HT)'])
+            ->add('maximumrate', null, ['label' => 'Taux remise maximum (%)'])
         ;
     }
 
