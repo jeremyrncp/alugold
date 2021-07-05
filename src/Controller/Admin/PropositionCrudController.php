@@ -92,8 +92,6 @@ class PropositionCrudController extends AbstractCrudController
             ->setCssClass('btn btn-xs btn-primary')
             ->linkToCrudAction('validateProposition');
 
-        $actions->setPermission(Action::DELETE, 'ROLE_ADMIN');
-
         if ($this->isGranted('ROLE_VENDOR')) {
             $actions->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
                 return $action->displayIf(function ($entity) {
@@ -101,7 +99,15 @@ class PropositionCrudController extends AbstractCrudController
                     return is_null($this->saleRepository->findOneBy(['Proposition' => $entity]));
                 });
             });
+
+            $actions->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
+                return $action->displayIf(function ($entity) {
+                    /** @var Proposition $entity */
+                    return is_null($this->saleRepository->findOneBy(['Proposition' => $entity]));
+                });
+            });
         }
+
 
         $actions->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
             return $action->setLabel('Ajouter une proposition');
