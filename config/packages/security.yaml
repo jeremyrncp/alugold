@@ -27,12 +27,13 @@ security:
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: chain_provider
             form_login:
                 login_path: login
                 check_path: login
 
             logout:
+                invalidate_session: true
                 path: /
 
             # activate different ways to authenticate
