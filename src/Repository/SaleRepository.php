@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Sale;
+use App\Entity\Vendor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,32 +20,55 @@ class SaleRepository extends ServiceEntityRepository
         parent::__construct($registry, Sale::class);
     }
 
-    // /**
-    //  * @return Sale[] Returns an array of Sale objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param \DateTimeImmutable $dateTimeImmutable
+     * @return Sale[]
+     */
+    public function findByMonth(\DateTimeImmutable $dateTimeImmutable)
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+                ->where('MONTH(s.acceptedAt) = :month')
+                ->andWhere('YEAR(s.acceptedAt) = :year')
+                ->setParameter('month', $dateTimeImmutable->format('m'))
+                ->setParameter('year', $dateTimeImmutable->format('Y'))
+                ->getQuery()
+                ->getResult()
         ;
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Sale
+    /**
+     * @param Vendor|null $vendor
+     * @return int|mixed|string
+     */
+    public function findAllMonthAvailable(Vendor $vendor = null)
+    {
+        $query = $this->createQueryBuilder('s')
+                ->select("DISTINCT DATE_FORMAT(s.acceptedAt, '%m-%Y') as date")
+                ->orderBy('date', 'DESC');
+
+        if (!is_null($vendor)) {
+            $query->where('s.Vendor = :vendor')
+                ->setParameter('vendor', $vendor);
+        }
+
+        return $query->getQuery()
+            ->getResult();
+    }
+
+
+    /**
+     * @param Vendor $vendor
+     * @return int|mixed|string
+     */
+    public function findByVendor(Vendor $vendor)
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
+                ->join('s.Proposition', 'p')
+                ->where('p.Vendor = :vendor')
+                ->orderBy('s.acceptedAt', 'DESC')
+                ->setParameter('vendor', $vendor)
+                ->getQuery()
+                ->getResult()
         ;
     }
-    */
 }

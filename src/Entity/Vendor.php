@@ -271,4 +271,9 @@ class Vendor implements PasswordAuthenticatedUserInterface, PasswordHasherAwareI
     {
         return null;
     }
+
+    public function getUserIdentifier()
+    {
+        return $this->getUsername();
+    }
 }

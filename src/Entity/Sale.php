@@ -48,6 +48,11 @@ class Sale
      */
     private $amount;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $amountTaxes;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,5 +128,27 @@ class Sale
         $this->amount = $amount;
 
         return $this;
+    }
+
+    public function getAmountTaxes(): ?int
+    {
+        return $this->amountTaxes;
+    }
+
+    public function setAmountTaxes(int $amountTaxes): self
+    {
+        $this->amountTaxes = $amountTaxes;
+
+        return $this;
+    }
+
+    public function getCommission()
+    {
+        return round($this->getAmount() * $this->getCommissionRate() / 100, 2);
+    }
+
+    public function getVendor(): Vendor
+    {
+       return $this->getProposition()->getVendor();
     }
 }

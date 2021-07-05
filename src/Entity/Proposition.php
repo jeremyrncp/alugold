@@ -172,7 +172,7 @@ class Proposition
 
     public function getVendorCostRate()
     {
-        return $this->getTotalVendorCost() / $this->getAmountWithoutTaxes();
+        return round($this->getTotalVendorCost() / $this->getAmountWithoutTaxes(), 2);
     }
 
     public function getBonificationRate()
@@ -187,6 +187,6 @@ class Proposition
 
     public function getCommssionAmount()
     {
-        return $this->getAmountWithoutTaxes() * $this->getCommissionRate() / 100;
+        return round($this->getAmountWithoutTaxes() * $this->getCommissionRate() / 100, 2);
     }
 }

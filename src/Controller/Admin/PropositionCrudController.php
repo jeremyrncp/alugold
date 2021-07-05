@@ -6,11 +6,16 @@ use App\Entity\Proposition;
 use App\Entity\Sale;
 use App\Repository\SaleRepository;
 use App\Service\NotificationService;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -32,6 +37,18 @@ class PropositionCrudController extends AbstractCrudController
         $this->crudUrlGenerator = $crudUrlGenerator;
     }
 
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        $result = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        if ($this->isGranted('ROLE_VENDOR')) {
+            $result->andWhere('entity.Vendor = :vendor');
+            $result->setParameter('vendor', $this->getUser());
+        }
+
+        return $result;
+    }
+
     public static function getEntityFqcn(): string
     {
         return Proposition::class;
@@ -45,6 +62,7 @@ class PropositionCrudController extends AbstractCrudController
         $sale = new Sale();
         $sale->setAcceptedAt(new \DateTimeImmutable());
         $sale->setProposition($proposition);
+        $sale->setAmountTaxes($proposition->getAmount());
         $sale->setAmount($proposition->getAmountWithoutTaxes());
         $sale->setBonificationRate($proposition->getBonificationRate());
         $sale->setCommissionRate($proposition->getCommissionRate());
@@ -65,12 +83,33 @@ class PropositionCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $validateProposition = Action::new('validate_proposition', 'Valider vente', 'fa fa-money')
+        $validateProposition = Action::new('validate_proposition', 'Valider vente')
             ->displayIf(function ($entity) {
                 return ($this->saleRepository->findOneBy(['Proposition' => $entity]) !== null) ? false : true;
             })
+            ->setCssClass('btn btn-xs btn-primary')
             ->linkToCrudAction('validateProposition');
 
+        $actions->setPermission(Action::DELETE, 'ROLE_ADMIN');
+
+        if ($this->isGranted('ROLE_VENDOR')) {
+            $actions->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
+                return $action->displayIf(function ($entity) {
+                    /** @var Proposition $entity */
+                    return is_null($this->saleRepository->findOneBy(['Proposition' => $entity]));
+                });
+            });
+        }
+
+        $actions->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
+            return $action->setLabel('Ajouter une proposition');
+        });
+
+        $actions->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN, function (Action $action) {
+            return $action->setLabel('Ajouter et calculer commission');
+        });
+
+        $actions->disable(Action::SAVE_AND_ADD_ANOTHER);
 
         return $actions
             ->add(Crud::PAGE_INDEX, $validateProposition);
@@ -105,10 +144,10 @@ class PropositionCrudController extends AbstractCrudController
                 ->setLabel('Bonification')
                 ->hideOnForm(),
             NumberField::new('CommissionRate')
-                ->setLabel('Commission')
+                ->setLabel('Commission (%)')
                 ->hideOnForm(),
             IntegerField::new('CommssionAmount')
-                ->setLabel('Mt commission')
+                ->setLabel('Commission (€)')
                 ->hideOnForm(),
         ];
     }
