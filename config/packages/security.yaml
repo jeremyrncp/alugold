@@ -1,16 +1,40 @@
 security:
     # https://symfony.com/doc/current/security/experimental_authenticators.html
     enable_authenticator_manager: true
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: 'auto'
+        harsh:
+            algorithm: auto
+            cost: 15
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        users_in_memory: { memory: null }
+        chain_provider:
+            chain:
+                providers: [users_in_memory, users]
+
+        users_in_memory:
+            memory:
+                users:
+                    admin: { password: '$2y$15$IDAV1JcPgRGx.B2HJ5/LSO2rfNhosfml2pWk.DRN.qUQceFe89aYG', roles: ['ROLE_ADMIN'] }
+        users:
+            entity:
+                class: 'App\Entity\Vendor'
+                property: 'email'
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: chain_provider
+            form_login:
+                login_path: login
+                check_path: login
+
+            logout:
+                invalidate_session: true
+                path: /
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -21,5 +45,5 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: [ROLE_ADMIN, ROLE_VENDOR] }

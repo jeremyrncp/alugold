@@ -1,0 +1,23 @@
+{% extends '@EasyAdmin/page/login.html.twig' %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    {% if is_granted('ROLE_VENDOR') %}
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+    {% endif %}
+{% endblock head_javascript %}
+
+{% block wrapper_wrapper %}
+    {{ parent() }}
+    {% if is_granted('ROLE_VENDOR') %}
+    <script>
+        const beamsClient = new PusherPushNotifications.Client({
+            instanceId: 'eef550f2-047b-4b9b-9753-4df580e92909',
+        });
+
+        beamsClient.start()
+            .then(() => beamsClient.addDeviceInterest('sale_validate'))
+            .catch(console.error);
+    </script>
+    {% endif %}
+{% endblock wrapper_wrapper %}

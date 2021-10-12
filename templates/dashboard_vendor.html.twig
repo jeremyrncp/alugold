@@ -1,0 +1,49 @@
+{% extends 'dashboard_sales.html.twig' %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    {% if is_granted('ROLE_VENDOR') %}
+        <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+    {% endif %}
+{% endblock head_javascript %}
+
+{% block page_title %}Dashboard suivi ventes et objectifs par vendeur{% endblock %}
+{% block page_content %}
+    {% if is_granted('ROLE_VENDOR') %}
+    <div class="text-right">
+            {% set url = ea_url()
+                .setController('App\\Controller\\Admin\\PropositionCrudController')
+                .setAction('new') %}
+            <a class="btn btn-primary" href="{{ url }}"><i class="fa fa-paper-plane"></i> Ajouter proposition</a>
+    </div>
+    {% endif %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ form(formVendorsAvailable) }}
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-hover text-center">
+            <tr>
+                <th>Mois</th>
+                <th>Nombre ventes</th>
+                <th>Montant € HT</th>
+                <th>Montant € TTC</th>
+                <th>Commission (€)</th>
+                <th>Taux objectif (%)</th>
+                <th>Objectif € HT</th>
+            </tr>
+            {% for monthlyGoal in sales %}
+                <tr>
+                    <td>{{ monthlyGoal.month }}</td>
+                    <td>{{ monthlyGoal.goalVO.sales|length }}</td>
+                    <td>{{ monthlyGoal.goalVO.amount }}</td>
+                    <td>{{ monthlyGoal.goalVO.amountTaxes }}</td>
+                    <td>{{ monthlyGoal.goalVO.commission }}</td>
+                    <td>{{ monthlyGoal.goalVO.rateGoal|round }}</td>
+                    <td>{{ monthlyGoal.goalVO.maxGoal }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
